@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-Get your Teachable Streak Tracker running in 5 minutes!
+Get your Teachable Streak Tracker widget deployed and running in 10 minutes!
 
 ## 1. Install Dependencies
 
@@ -21,34 +21,37 @@ You should see:
 📊 Visit http://localhost:3000 to view the widget
 ```
 
-## 3. Test Locally
+## 3. Test the Code Generator
 
-1. Open http://localhost:3000 in your browser
-2. Enter a school ID (anything, e.g., "student123")
-3. Click "View My Streak"
-4. You should see a beautiful streak widget with confetti! 🎉
+1. Open http://localhost:3000/generator.html in your browser
+2. Click "Generate Widget Code"
+3. You should see generated code appear below
+4. The preview will show a demo streak widget
 
 ## 4. Test Streak Logic
 
-**Day 1 (Today):**
-- Visit the page → See 1 day streak
+**Check stored data:**
+1. Open `data/streaks.json`
+2. You should see an entry with a guest ID (since you're not on Teachable)
+3. Check the `currentStreak`, `lastVisitDate`, and `totalVisits`
 
-**Simulate Day 2:**
+**Simulate next day visit:**
 1. Stop the server (Ctrl+C)
 2. Open `data/streaks.json`
-3. Change the `lastVisitDate` to yesterday:
+3. Find your guest ID entry and change `lastVisitDate` to yesterday:
    ```json
    {
-     "student123": {
+     "guest_1734567890_abc123": {
        "lastVisitDate": "2025-12-14",  // Change to yesterday
+       "currentStreak": 1,
        ...
      }
    }
    ```
-4. Start server again: `npm start`
-5. Refresh page → See 2 day streak!
+4. Start server: `npm start`
+5. Refresh the generator page → Preview shows 2 day streak!
 
-**Simulate Streak Break:**
+**Simulate streak break:**
 1. Change `lastVisitDate` to 3 days ago
 2. Refresh → Streak resets to 1
 
@@ -82,45 +85,43 @@ gh repo create teachable-streak-tracker --public --source=. --remote=origin --pu
 7. Your app is live! 🚀
    Visit: `https://teachable-streak-tracker.onrender.com`
 
-## 6. Share with Students
+## 6. Add Widget to Teachable
 
-Send students the URL:
+**Generate the code:**
+1. Visit: `https://teachable-streak-tracker.onrender.com/generator.html`
+2. Verify API URL is set to production
+3. Click "Generate Widget Code"
+4. Click "📋 Copy" to copy the generated code
+
+**Add to Teachable:**
+1. Go to Teachable Admin → **Site** → **Code Snippets**
+2. Paste the code in **"Header Code"** or **"Footer Code"**
+3. Click **Save**
+
+**Test on Teachable:**
+1. Visit your Teachable dashboard at `/l/dashboard`
+2. The streak widget should appear below the "Welcome back..." greeting
+3. Your student ID will be auto-detected from Teachable cookies
+4. Each student will see their own personal streak!
+
+## 7. Monitor Engagement
+
+**Check who's using the widget:**
+1. Open `data/streaks.json` on your server
+2. You'll see entries for each student who visited
+3. Student IDs are their Teachable IDs (e.g., "76326411")
+
+**Use API endpoints:**
+```bash
+# Get overall stats
+curl https://teachable-streak-tracker.onrender.com/api/stats
+
+# Get leaderboard (anonymized)
+curl https://teachable-streak-tracker.onrender.com/api/leaderboard
+
+# Get specific student's streak
+curl https://teachable-streak-tracker.onrender.com/api/streak/76326411
 ```
-https://teachable-streak-tracker.onrender.com
-```
-
-Or embed in Teachable:
-```html
-<iframe
-  src="https://teachable-streak-tracker.onrender.com"
-  width="100%"
-  height="800px"
-  frameborder="0">
-</iframe>
-```
-
-## Testing with Real Students
-
-**Recommended approach for POC:**
-
-1. Create test school IDs:
-   - testuser1
-   - testuser2
-   - testuser3
-
-2. Share URL + instructions:
-   ```
-   Track your learning streak! 🔥
-
-   Visit: https://your-app-url.com
-   Enter your school ID: [provided by instructor]
-   Check daily to build your streak!
-   ```
-
-3. Monitor engagement:
-   - Check `data/streaks.json` to see who's visiting
-   - Use `/api/stats` endpoint to get overview
-   - View `/api/leaderboard` to see top performers
 
 ## API Testing
 

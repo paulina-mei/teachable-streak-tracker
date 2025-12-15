@@ -1,17 +1,17 @@
 # Teachable Streak Tracker
 
-A gamified streak tracking application for Teachable students. Students enter their school ID and track their daily learning streaks with celebrations, milestones, and visual feedback.
+A gamified streak tracking widget for Teachable students that displays on the student dashboard. Each student's unique ID is automatically extracted from Teachable cookies, providing personalized streak tracking without manual ID entry.
 
 ## Features
 
-- **Student Identification**: Enter school ID to track individual streaks
-- **Server-Side Tracking**: Data persists across devices and browsers
-- **Streak Calculation**: Automatic daily streak counting
-- **Milestone Celebrations**: Special animations at 3, 7, 14, 30, 60, 100, and 365 days
-- **7-Day Calendar**: Visual representation of recent activity
-- **Stats Dashboard**: View longest streak and total visits
-- **Auto-Login**: Returns to your streak automatically
-- **Confetti Animations**: Celebrations for achievements
+- **Automatic Student Detection**: Extracts student ID from Teachable cookies (`_hp2_id` or `ajs_user_id`)
+- **Personal Streak Tracking**: Each student sees their own individual streak
+- **Server-Side Persistence**: Data persists across devices and browsers
+- **Automatic Streak Calculation**: Tracks consecutive daily visits
+- **Milestone Celebrations**: Special messages at 1, 2, 3, 7, 14, 30, 60, and 100 days
+- **Horizontal Dashboard Widget**: Clean, wide layout positioned after the dashboard greeting
+- **Stats Display**: View current streak, record, and total visits
+- **Dynamic Loading**: Works with Teachable's client-side routing
 
 ## Tech Stack
 
@@ -52,21 +52,34 @@ npm run dev
 4. **Visit the app**:
 Open http://localhost:3000 in your browser
 
-### Testing
+### Testing Locally
 
-1. Enter any school ID (e.g., "student123")
-2. See your streak widget
-3. Visit data/streaks.json to see stored data
-4. Return tomorrow to see streak increment
+For local testing without Teachable cookies:
+
+1. Visit http://localhost:3000/generator.html
+2. Click "Generate Widget Code"
+3. The widget will use a fallback guest ID stored in localStorage
+4. Check `data/streaks.json` to see stored data
+
+### Testing with Production
+
+1. Deploy to Render (see Deployment section)
+2. Visit your Teachable dashboard where the widget is installed
+3. Your student ID from Teachable cookies will be auto-detected
+4. Each refresh on the same day won't increment the streak
+5. Return the next day to see the streak increment
 
 ### Simulating Different Scenarios
 
 **Reset a student's streak:**
-- Delete their entry from `data/streaks.json` and restart the server
+- Delete their entry from `data/streaks.json`
 
 **Test streak increment:**
 - Edit `data/streaks.json` and change `lastVisitDate` to yesterday's date
-- Reload the page to see streak increment
+- Reload the dashboard to see streak increment
+
+**Test different students:**
+- Each student with a different Teachable ID will have their own streak tracked
 
 ## API Endpoints
 
@@ -76,14 +89,15 @@ Record a student visit and update streak
 **Request Body:**
 ```json
 {
-  "schoolId": "student123"
+  "schoolId": "76326411"
 }
 ```
+*Note: `schoolId` is automatically extracted from Teachable cookies by the widget. This is the student's unique Teachable ID.*
 
 **Response:**
 ```json
 {
-  "schoolId": "student123",
+  "schoolId": "76326411",
   "currentStreak": 5,
   "longestStreak": 7,
   "lastVisitDate": "2025-12-15",
@@ -220,25 +234,32 @@ server {
 
 ## Embedding in Teachable
 
-Once deployed, share the URL with students:
+Once deployed, use the code generator to create embeddable widget code:
 
-**Option 1: Direct Link**
-Share `https://your-app-url.com` with students
+### Step 1: Generate Widget Code
 
-**Option 2: Embed in Teachable**
-Add to Teachable custom code:
-```html
-<iframe
-  src="https://your-app-url.com"
-  width="100%"
-  height="800px"
-  frameborder="0"
-  style="border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-</iframe>
-```
+1. Visit your deployed code generator: `https://your-app-url.onrender.com/generator.html`
+2. Verify the API URL is set to your production server
+3. Click "Generate Widget Code"
+4. Copy the generated code
 
-**Option 3: Redirect from Dashboard**
-Set up a custom redirect from `/l/dashboard` to your hosted app
+### Step 2: Add to Teachable
+
+1. Go to Teachable Admin → **Site** → **Code Snippets**
+2. Paste the code in **"Header Code"** or **"Footer Code"**
+3. Click **Save**
+
+### Step 3: Verify
+
+1. Visit your Teachable dashboard at `/l/dashboard`
+2. The streak widget should appear below the "Welcome back..." greeting
+3. Each student will see their own personal streak automatically
+
+**How it works:**
+- Widget only displays on the dashboard page (`/l/dashboard`)
+- Student IDs are automatically extracted from Teachable cookies
+- Each student sees their own streak data
+- Works with Teachable's client-side routing (appears on navigation without page refresh)
 
 ## Upgrading Storage
 
@@ -286,13 +307,29 @@ const milestones = [3, 7, 14, 30, 60, 100, 365];
 
 Edit `getEncouragingMessage()` function in `public/index.html`
 
+## How Student ID Detection Works
+
+The widget automatically extracts student IDs from Teachable cookies in this priority order:
+
+1. **`_hp2_id` cookie** - Extracts the `identity` field (primary Teachable student ID)
+2. **`ajs_user_id` cookie** - Fallback Teachable user identifier
+3. **localStorage** - Last resort: generates a guest ID and stores it locally
+
+Example cookie extraction:
+```javascript
+// From: _hp2_id.318805607={"identity":"76326411",...}
+// Extracted ID: "76326411"
+```
+
+This ensures each student sees only their own streak data.
+
 ## Data Structure
 
 Student data stored in `data/streaks.json`:
 ```json
 {
-  "student123": {
-    "schoolId": "student123",
+  "76326411": {
+    "schoolId": "76326411",
     "currentStreak": 5,
     "longestStreak": 7,
     "lastVisitDate": "2025-12-15",
