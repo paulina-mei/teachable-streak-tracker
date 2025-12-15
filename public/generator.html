@@ -265,7 +265,9 @@
                 '        return; // Exit if not on dashboard\n' +
                 '    }\n\n' +
                 '    const SCHOOL_ID = "' + schoolId + '";\n' +
-                '    const API_URL = "' + apiUrl + '";\n\n' +
+                '    const API_URL = "' + apiUrl + '";\n' +
+                '    let loadAttempts = 0;\n' +
+                '    const MAX_ATTEMPTS = 20; // Try for up to 4 seconds\n\n' +
                 '    async function loadStreak() {\n' +
                 '        let container = document.getElementById("teachable-streak-widget");\n' +
                 '        \n' +
@@ -282,7 +284,12 @@
                 '                    greeting.parentNode.appendChild(container);\n' +
                 '                }\n' +
                 '            } else {\n' +
-                '                return; // Exit if no greeting element found\n' +
+                '                // Greeting not found yet, retry after delay\n' +
+                '                loadAttempts++;\n' +
+                '                if (loadAttempts < MAX_ATTEMPTS) {\n' +
+                '                    setTimeout(loadStreak, 200);\n' +
+                '                }\n' +
+                '                return;\n' +
                 '            }\n' +
                 '        }\n\n' +
                 '        try {\n' +
@@ -328,10 +335,13 @@
                 '        \'</div>\';\n\n' +
                 '        document.getElementById("teachable-streak-widget").innerHTML = html;\n' +
                 '    }\n\n' +
+                '    // Wait a bit for Teachable to load its content, then start trying\n' +
                 '    if (document.readyState === "loading") {\n' +
-                '        document.addEventListener("DOMContentLoaded", loadStreak);\n' +
+                '        document.addEventListener("DOMContentLoaded", function() {\n' +
+                '            setTimeout(loadStreak, 300);\n' +
+                '        });\n' +
                 '    } else {\n' +
-                '        loadStreak();\n' +
+                '        setTimeout(loadStreak, 300);\n' +
                 '    }\n' +
                 '})();\n' +
                 '<\/script>';
