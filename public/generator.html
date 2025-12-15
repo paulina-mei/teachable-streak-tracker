@@ -250,8 +250,8 @@
                 '</style>\n\n' +
                 '<script>\n' +
                 '(function() {\n' +
-                '    // Only run on /l/dashboard page\n' +
-                '    if (!window.location.pathname.includes("/l/dashboard")) {\n' +
+                '    // Only run on dashboard page - check for .DashboardPage class\n' +
+                '    if (!document.querySelector(".DashboardPage") && !window.location.pathname.includes("/l/dashboard")) {\n' +
                 '        return; // Exit if not on dashboard\n' +
                 '    }\n\n' +
                 '    const SCHOOL_ID = "' + schoolId + '";\n' +
