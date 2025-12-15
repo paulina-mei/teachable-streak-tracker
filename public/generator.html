@@ -264,18 +264,21 @@
                 '    const API_URL = "' + apiUrl + '";\n' +
                 '    let widgetLoaded = false;\n\n' +
                 '    async function loadStreak() {\n' +
-                '        // Check if we\'re on dashboard\n' +
-                '        if (!document.querySelector(".DashboardPage") && !window.location.pathname.includes("/l/dashboard")) {\n' +
+                '        // Check if we\'re on dashboard page\n' +
+                '        const isDashboard = document.querySelector(".DashboardPage") || window.location.pathname.includes("/l/dashboard");\n' +
+                '        if (!isDashboard) {\n' +
                 '            return;\n' +
                 '        }\n\n' +
-                '        // Check if widget already exists\n' +
-                '        if (widgetLoaded && document.getElementById("teachable-streak-widget")) {\n' +
+                '        // Check if widget already loaded\n' +
+                '        if (widgetLoaded) {\n' +
                 '            return;\n' +
                 '        }\n\n' +
+                '        // Look for greeting element\n' +
                 '        const greeting = document.querySelector(".DashboardGreeting");\n' +
                 '        if (!greeting) {\n' +
-                '            return; // Wait for observer to detect it\n' +
+                '            return; // Not ready yet\n' +
                 '        }\n\n' +
+                '        // Create widget container\n' +
                 '        let container = document.getElementById("teachable-streak-widget");\n' +
                 '        if (!container) {\n' +
                 '            container = document.createElement("div");\n' +
@@ -288,7 +291,7 @@
                 '        }\n\n' +
                 '        widgetLoaded = true;\n\n' +
                 '        try {\n' +
-                '            container.innerHTML = "<div style=\'padding: 40px; text-align: center;\'>Loading streak...</div>";\n\n' +
+                '            container.innerHTML = "<div style=\'padding: 20px; text-align: center;\'>Loading streak...</div>";\n\n' +
                 '            const response = await fetch(API_URL + "/visit", {\n' +
                 '                method: "POST",\n' +
                 '                headers: { "Content-Type": "application/json" },\n' +
@@ -298,7 +301,7 @@
                 '            const data = await response.json();\n' +
                 '            renderWidget(data);\n' +
                 '        } catch (error) {\n' +
-                '            console.error("Streak error:", error);\n' +
+                '            console.error("Streak widget error:", error);\n' +
                 '            container.innerHTML = "<div style=\'padding: 20px; text-align: center; color: #c33;\'>Failed to load streak</div>";\n' +
                 '        }\n' +
                 '    }\n\n' +
@@ -330,23 +333,16 @@
                 '        \'</div>\';\n\n' +
                 '        document.getElementById("teachable-streak-widget").innerHTML = html;\n' +
                 '    }\n\n' +
-                '    // Use MutationObserver to watch for .DashboardGreeting appearing\n' +
-                '    const observer = new MutationObserver(function() {\n' +
-                '        if (document.querySelector(".DashboardGreeting") && !widgetLoaded) {\n' +
-                '            loadStreak();\n' +
+                '    // Check every 500ms for dashboard greeting to appear\n' +
+                '    const checkInterval = setInterval(function() {\n' +
+                '        if (widgetLoaded) {\n' +
+                '            clearInterval(checkInterval);\n' +
+                '            return;\n' +
                 '        }\n' +
-                '    });\n\n' +
-                '    // Start observing the entire document for changes\n' +
-                '    observer.observe(document.body, {\n' +
-                '        childList: true,\n' +
-                '        subtree: true\n' +
-                '    });\n\n' +
-                '    // Also try immediately in case greeting is already there\n' +
-                '    if (document.readyState === "loading") {\n' +
-                '        document.addEventListener("DOMContentLoaded", loadStreak);\n' +
-                '    } else {\n' +
                 '        loadStreak();\n' +
-                '    }\n' +
+                '    }, 500);\n\n' +
+                '    // Also try immediately\n' +
+                '    loadStreak();\n' +
                 '})();\n' +
                 '<\/script>';
 
