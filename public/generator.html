@@ -3,42 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teachable Streak Widget Generator</title>
+    <title>Teachable Streak Widget - Code Generator</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 40px 20px;
         }
-
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
         }
-
         .header {
             text-align: center;
             color: white;
             margin-bottom: 40px;
         }
-
         .header h1 {
             font-size: 36px;
             margin-bottom: 12px;
         }
-
-        .header p {
-            font-size: 18px;
-            opacity: 0.9;
-        }
-
         .card {
             background: white;
             border-radius: 16px;
@@ -46,63 +36,26 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             margin-bottom: 24px;
         }
-
-        .step {
-            margin-bottom: 32px;
+        .form-group {
+            margin-bottom: 24px;
         }
-
-        .step-number {
-            display: inline-block;
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 32px;
-            font-weight: 700;
-            margin-right: 12px;
-        }
-
-        .step-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 12px;
-        }
-
-        .step-description {
-            color: #666;
-            margin-bottom: 16px;
-            line-height: 1.6;
-        }
-
-        .input-group {
-            margin-bottom: 16px;
-        }
-
-        .input-group label {
+        label {
             display: block;
             margin-bottom: 8px;
             color: #333;
             font-weight: 600;
         }
-
-        .input-group input {
+        input {
             width: 100%;
-            padding: 12px 16px;
+            padding: 12px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 16px;
-            transition: all 0.3s ease;
         }
-
-        .input-group input:focus {
+        input:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-
         .btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -112,512 +65,315 @@
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
+            width: 100%;
         }
-
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            opacity: 0.9;
         }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .code-output {
+        .output {
             display: none;
+            margin-top: 30px;
         }
-
-        .code-output.visible {
+        .output.visible {
             display: block;
-            animation: slideIn 0.4s ease-out;
         }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .code-block {
-            background: #f5f5f5;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
+        .success {
+            background: #d1fae5;
+            color: #065f46;
             padding: 16px;
+            border-radius: 8px;
             margin-bottom: 16px;
+            font-weight: 600;
+        }
+        .code-container {
             position: relative;
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 16px;
         }
-
-        .code-block pre {
-            margin: 0;
-            overflow-x: auto;
-            font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 13px;
-            line-height: 1.6;
-            color: #333;
-        }
-
         .copy-btn {
             position: absolute;
-            top: 12px;
-            right: 12px;
+            top: 10px;
+            right: 10px;
             background: #667eea;
             color: white;
             border: none;
-            padding: 6px 12px;
+            padding: 8px 16px;
             border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: 600;
         }
-
         .copy-btn:hover {
             background: #5568d3;
         }
-
         .copy-btn.copied {
             background: #10b981;
         }
-
-        .preview-section {
-            margin-top: 24px;
-            padding-top: 24px;
-            border-top: 2px solid #f0f0f0;
+        pre {
+            margin: 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            padding-top: 30px;
         }
-
-        .preview-title {
-            font-size: 16px;
-            font-weight: 700;
+        .preview {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+        .preview h3 {
+            margin-bottom: 20px;
             color: #333;
-            margin-bottom: 16px;
         }
-
-        .alert {
-            background: #fef3c7;
-            border: 1px solid #fbbf24;
-            color: #92400e;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            font-size: 14px;
-        }
-
-        .alert-success {
-            background: #d1fae5;
-            border-color: #10b981;
-            color: #065f46;
-        }
-
-        .instructions {
-            background: #eff6ff;
-            border: 1px solid #3b82f6;
-            color: #1e40af;
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-        }
-
-        .instructions ol {
-            margin: 8px 0 0 20px;
-        }
-
-        .instructions li {
-            margin: 4px 0;
-        }
-
-        .api-url-display {
-            background: #f5f5f5;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-family: monospace;
+        small {
+            display: block;
+            color: #666;
             font-size: 13px;
-            margin-top: 8px;
+            margin-top: 4px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔥 Streak Widget Generator</h1>
-            <p>Create your personalized learning streak widget for Teachable</p>
+            <h1>🔥 Teachable Streak Widget Generator</h1>
+            <p style="opacity: 0.9;">Create your personalized streak tracking code</p>
         </div>
 
         <div class="card">
-            <!-- Step 1: Enter School ID -->
-            <div class="step">
-                <div class="step-title">
-                    <span class="step-number">1</span>
-                    Enter Your Information
-                </div>
-                <div class="step-description">
-                    Choose a unique School ID (this will track your streak)
-                </div>
-                <div class="input-group">
-                    <label for="schoolId">Your School ID</label>
-                    <input
-                        type="text"
-                        id="schoolId"
-                        placeholder="e.g., 1371193"
-                        autocomplete="off"
-                    />
-                    <small style="color: #666; font-size: 12px; margin-top: 4px; display: block;">
-                        This is your unique Teachable student ID (usually a number)
-                    </small>
-                </div>
-                <div class="input-group">
-                    <label for="apiUrl">API Server URL</label>
-                    <input
-                        type="text"
-                        id="apiUrl"
-                        placeholder="http://localhost:3000/api"
-                        value="http://localhost:3000/api"
-                    />
-                    <small style="color: #666; font-size: 12px; margin-top: 4px; display: block;">
-                        <strong>This is YOUR backend server URL</strong>, not Teachable's API.<br>
-                        • Testing: <code>http://localhost:3000/api</code><br>
-                        • Production: <code>https://your-app.onrender.com/api</code> (after you deploy)
-                    </small>
-                </div>
-                <div class="input-group">
-                    <label for="targetElement">Where to place widget (optional)</label>
-                    <input
-                        type="text"
-                        id="targetElement"
-                        placeholder=".DashboardGreeting"
-                        value=".DashboardGreeting"
-                    />
-                    <small style="color: #666; font-size: 12px; margin-top: 4px; display: block;">
-                        CSS selector of element to insert after. Leave as <code>.DashboardGreeting</code> for Teachable dashboard.
-                    </small>
-                </div>
-                <button id="generateBtn" class="btn">Generate My Widget Code</button>
+            <div class="form-group">
+                <label for="schoolId">Your School ID</label>
+                <input
+                    type="text"
+                    id="schoolId"
+                    placeholder="e.g., 1371193"
+                    value="1371193"
+                >
+                <small>This is your unique Teachable student ID (usually a number)</small>
             </div>
 
-            <!-- Step 2: Copy Code -->
-            <div id="codeOutput" class="code-output">
-                <div class="step">
-                    <div class="step-title">
-                        <span class="step-number">2</span>
-                        Copy Your Widget Code
-                    </div>
-                    <div class="alert-success alert">
-                        ✅ Widget code generated successfully!
-                    </div>
-                    <div class="step-description">
-                        Copy the code below and paste it into your Teachable dashboard custom code section
-                    </div>
+            <div class="form-group">
+                <label for="apiUrl">API Server URL</label>
+                <input
+                    type="text"
+                    id="apiUrl"
+                    value="https://teachable-streak-tracker.onrender.com/api"
+                >
+                <small>
+                    <strong>Production:</strong> https://teachable-streak-tracker.onrender.com/api<br>
+                    <strong>Local testing:</strong> http://localhost:3000/api
+                </small>
+            </div>
 
-                    <div class="code-block">
-                        <button class="copy-btn" onclick="copyCode()">Copy</button>
-                        <pre id="generatedCode"></pre>
-                    </div>
+            <button class="btn" onclick="generateCode()">Generate Widget Code</button>
 
-                    <div class="instructions">
-                        <strong>📋 How to add to Teachable Dashboard:</strong>
-                        <ol>
-                            <li><strong>Go to your Teachable admin</strong> → Site → Code Snippets</li>
-                            <li><strong>Or</strong> go to the specific page editor → Advanced → Custom Code</li>
-                            <li><strong>Paste the code above</strong> into the "Header Code" or "Body Code" section</li>
-                            <li><strong>Save</strong> and view your dashboard as a student</li>
-                            <li>The widget will automatically appear <strong>right after</strong> the "Welcome back..." heading!</li>
-                        </ol>
-                        <p style="margin-top: 12px; padding: 12px; background: #fef3c7; border-radius: 6px; font-size: 13px;">
-                            <strong>💡 Note:</strong> The widget will find the element <code class="target-element-display">.DashboardGreeting</code> and insert itself right after it.
-                            Make sure this element exists on your dashboard page!
-                        </p>
-                    </div>
+            <div id="output" class="output">
+                <div class="success">
+                    ✅ Code generated! Copy and paste into your Teachable custom code section.
                 </div>
 
-                <!-- Step 3: Preview -->
-                <div class="preview-section">
-                    <div class="preview-title">Preview (How it will look):</div>
-                    <div id="widgetPreview"></div>
+                <h3>Step 1: Copy This Code</h3>
+                <div class="code-container">
+                    <button class="copy-btn" onclick="copyCode()">📋 Copy</button>
+                    <pre id="generated-code"></pre>
+                </div>
+
+                <div class="preview">
+                    <h3>Step 2: Preview</h3>
+                    <div id="preview-container"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        const generateBtn = document.getElementById('generateBtn');
-        const codeOutput = document.getElementById('codeOutput');
-        const schoolIdInput = document.getElementById('schoolId');
-        const apiUrlInput = document.getElementById('apiUrl');
-        const targetElementInput = document.getElementById('targetElement');
-
-        generateBtn.addEventListener('click', generateWidget);
-        schoolIdInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') generateWidget();
-        });
-
-        function generateWidget() {
-            const schoolId = schoolIdInput.value.trim();
-            const apiUrl = apiUrlInput.value.trim() || 'http://localhost:3000/api';
-            const targetElement = targetElementInput.value.trim() || '.DashboardGreeting';
+        function generateCode() {
+            const schoolId = document.getElementById('schoolId').value.trim();
+            const apiUrl = document.getElementById('apiUrl').value.trim();
 
             if (!schoolId) {
-                alert('Please enter a School ID');
+                alert('Please enter your School ID');
                 return;
             }
 
-            // Generate the embed code
-            const embedCode = generateEmbedCode(schoolId, apiUrl, targetElement);
+            if (!apiUrl) {
+                alert('Please enter API URL');
+                return;
+            }
 
-            // Display the code
-            document.getElementById('generatedCode').textContent = embedCode;
-            codeOutput.classList.add('visible');
+            // Generate the code
+            const code = createEmbedCode(schoolId, apiUrl);
 
-            // Update instructions with target element
-            document.querySelectorAll('.target-element-display').forEach(el => {
-                el.textContent = targetElement;
-            });
+            // Display it
+            document.getElementById('generated-code').textContent = code;
+            document.getElementById('output').classList.add('visible');
 
             // Show preview
-            document.getElementById('widgetPreview').innerHTML = embedCode;
-
-            // Scroll to output
-            codeOutput.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            loadPreview(schoolId, apiUrl);
         }
 
-        function generateEmbedCode(schoolId, apiUrl, targetElement) {
-            return `<!-- Teachable Streak Widget - Paste this into Teachable custom code -->
-<!-- This will appear after the element: ${targetElement} -->
-<div id="teachable-streak-widget"></div>
+        function createEmbedCode(schoolId, apiUrl) {
+            // Return the embed code as a string (no template literals inside)
+            const code = '<!-- Teachable Streak Widget -->\n' +
+                '<div id="teachable-streak-widget"></div>\n\n' +
+                '<style>\n' +
+                '    #teachable-streak-widget {\n' +
+                '        max-width: 500px;\n' +
+                '        margin: 20px auto;\n' +
+                '        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;\n' +
+                '    }\n' +
+                '    .streak-widget-card {\n' +
+                '        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n' +
+                '        border-radius: 16px;\n' +
+                '        padding: 32px;\n' +
+                '        color: white;\n' +
+                '        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);\n' +
+                '        text-align: center;\n' +
+                '    }\n' +
+                '    .streak-fire { font-size: 48px; margin-bottom: 12px; animation: flicker 2s infinite; }\n' +
+                '    @keyframes flicker { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }\n' +
+                '    .streak-number { font-size: 64px; font-weight: 800; margin-bottom: 8px; }\n' +
+                '    .streak-label { font-size: 18px; opacity: 0.9; margin-bottom: 16px; }\n' +
+                '    .streak-message { background: rgba(255,255,255,0.2); padding: 12px; border-radius: 8px; margin-top: 16px; }\n' +
+                '    .streak-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }\n' +
+                '    .stat-item { background: rgba(255,255,255,0.15); padding: 12px; border-radius: 8px; }\n' +
+                '    .stat-value { font-size: 24px; font-weight: 700; }\n' +
+                '    .stat-label { font-size: 12px; opacity: 0.8; }\n' +
+                '    .streak-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 16px; }\n' +
+                '    .calendar-day { aspect-ratio: 1; background: rgba(255,255,255,0.2); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; }\n' +
+                '    .calendar-day.active { background: rgba(255,215,0,0.9); }\n' +
+                '</style>\n\n' +
+                '<script>\n' +
+                '(function() {\n' +
+                '    const SCHOOL_ID = "' + schoolId + '";\n' +
+                '    const API_URL = "' + apiUrl + '";\n\n' +
+                '    async function loadStreak() {\n' +
+                '        const container = document.getElementById("teachable-streak-widget");\n' +
+                '        if (!container) return;\n\n' +
+                '        try {\n' +
+                '            container.innerHTML = "<div style=\'padding: 40px; text-align: center;\'>Loading streak...</div>";\n\n' +
+                '            const response = await fetch(API_URL + "/visit", {\n' +
+                '                method: "POST",\n' +
+                '                headers: { "Content-Type": "application/json" },\n' +
+                '                body: JSON.stringify({ schoolId: SCHOOL_ID })\n' +
+                '            });\n\n' +
+                '            if (!response.ok) throw new Error("Failed to load");\n\n' +
+                '            const data = await response.json();\n' +
+                '            renderWidget(data);\n' +
+                '        } catch (error) {\n' +
+                '            console.error("Streak error:", error);\n' +
+                '            container.innerHTML = "<div style=\'padding: 20px; text-align: center; color: #c33;\'>Failed to load streak</div>";\n' +
+                '        }\n' +
+                '    }\n\n' +
+                '    function renderWidget(data) {\n' +
+                '        const messages = {\n' +
+                '            1: "You\'re back! Let\'s build a streak! 💪",\n' +
+                '            3: "3 days! Building a habit! 🔥",\n' +
+                '            7: "One week! Unstoppable! 🚀",\n' +
+                '            30: "30 days! Legend! 👑"\n' +
+                '        };\n' +
+                '        const message = data.isNewUser ? "Welcome! Your journey begins! 🎉" : (messages[data.currentStreak] || data.currentStreak + " days! On fire! 🔥");\n\n' +
+                '        const calendar = renderCalendar(data.visitDates || []);\n\n' +
+                '        const html = \'<div class="streak-widget-card">\' +\n' +
+                '            \'<div class="streak-fire">🔥</div>\' +\n' +
+                '            \'<div class="streak-number">\' + data.currentStreak + \'</div>\' +\n' +
+                '            \'<div class="streak-label">\' + (data.currentStreak === 1 ? "day" : "days") + \' in a row</div>\' +\n' +
+                '            \'<div class="streak-calendar">\' + calendar + \'</div>\' +\n' +
+                '            \'<div class="streak-message">\' + message + \'</div>\' +\n' +
+                '            \'<div class="streak-stats">\' +\n' +
+                '                \'<div class="stat-item"><div class="stat-value">\' + data.longestStreak + \'</div><div class="stat-label">Longest</div></div>\' +\n' +
+                '                \'<div class="stat-item"><div class="stat-value">\' + data.totalVisits + \'</div><div class="stat-label">Total</div></div>\' +\n' +
+                '            \'</div>\' +\n' +
+                '        \'</div>\';\n\n' +
+                '        document.getElementById("teachable-streak-widget").innerHTML = html;\n' +
+                '    }\n\n' +
+                '    function renderCalendar(visitDates) {\n' +
+                '        let html = "";\n' +
+                '        const today = new Date();\n' +
+                '        today.setHours(0, 0, 0, 0);\n' +
+                '        const days = ["S", "M", "T", "W", "T", "F", "S"];\n\n' +
+                '        for (let i = 6; i >= 0; i--) {\n' +
+                '            const date = new Date(today);\n' +
+                '            date.setDate(date.getDate() - i);\n' +
+                '            const dateStr = date.toISOString().split("T")[0];\n' +
+                '            const isActive = visitDates.includes(dateStr);\n' +
+                '            const dayLabel = days[date.getDay()];\n' +
+                '            html += \'<div class="calendar-day \' + (isActive ? "active" : "") + \'">\' + dayLabel + \'</div>\';\n' +
+                '        }\n' +
+                '        return html;\n' +
+                '    }\n\n' +
+                '    if (document.readyState === "loading") {\n' +
+                '        document.addEventListener("DOMContentLoaded", loadStreak);\n' +
+                '    } else {\n' +
+                '        loadStreak();\n' +
+                '    }\n' +
+                '})();\n' +
+                '<\/script>';
 
-<style>
-    #teachable-streak-widget {
-        max-width: 500px;
-        margin: 20px auto;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-    .streak-widget-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 16px;
-        padding: 32px;
-        color: white;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
-    .streak-fire {
-        font-size: 48px;
-        margin-bottom: 12px;
-        animation: flicker 2s infinite;
-    }
-    @keyframes flicker {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.1); }
-    }
-    .streak-number {
-        font-size: 64px;
-        font-weight: 800;
-        margin-bottom: 8px;
-    }
-    .streak-label {
-        font-size: 18px;
-        opacity: 0.9;
-        margin-bottom: 16px;
-    }
-    .streak-message {
-        background: rgba(255, 255, 255, 0.2);
-        padding: 12px;
-        border-radius: 8px;
-        margin-top: 16px;
-        font-size: 14px;
-    }
-    .streak-stats {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-        margin-top: 16px;
-    }
-    .stat-item {
-        background: rgba(255, 255, 255, 0.15);
-        padding: 12px;
-        border-radius: 8px;
-    }
-    .stat-value {
-        font-size: 24px;
-        font-weight: 700;
-    }
-    .stat-label {
-        font-size: 12px;
-        opacity: 0.8;
-    }
-    .streak-calendar {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 6px;
-        margin-top: 16px;
-    }
-    .calendar-day {
-        aspect-ratio: 1;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 11px;
-        font-weight: 600;
-    }
-    .calendar-day.active {
-        background: rgba(255, 215, 0, 0.9);
-    }
-    .loading-state {
-        padding: 40px;
-        text-align: center;
-        color: #666;
-    }
-</style>
-
-<script>
-(function() {
-    const SCHOOL_ID = '${schoolId}';
-    const API_URL = '${apiUrl}';
-    const TARGET_ELEMENT = '${targetElement}';
-
-    async function loadStreak() {
-        try {
-            // Find the target element and insert widget after it
-            const targetEl = document.querySelector(TARGET_ELEMENT);
-            let container = document.getElementById('teachable-streak-widget');
-
-            if (targetEl && !container) {
-                // Create container and insert after target
-                container = document.createElement('div');
-                container.id = 'teachable-streak-widget';
-                targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
-            } else if (!container) {
-                // Fallback: create container at the end of body
-                container = document.createElement('div');
-                container.id = 'teachable-streak-widget';
-                document.body.appendChild(container);
-            }
-
-            container.innerHTML = '<div class="loading-state">Loading your streak...</div>';
-
-            const response = await fetch(\`\${API_URL}/visit\`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ schoolId: SCHOOL_ID })
-            });
-
-            if (!response.ok) throw new Error('Failed to load streak');
-
-            const data = await response.json();
-            renderWidget(data, container);
-
-        } catch (error) {
-            console.error('Error loading streak:', error);
-            const container = document.getElementById('teachable-streak-widget');
-            if (container) {
-                container.innerHTML = \`
-                    <div class="loading-state" style="color: #c33;">
-                        Failed to load streak. Please check your connection.
-                    </div>
-                \`;
-            }
-        }
-    }
-
-    function renderWidget(data, container) {
-        const message = getEncouragingMessage(data.currentStreak, data.isNewUser);
-
-        const html = \`
-            <div class="streak-widget-card">
-                <div class="streak-fire">🔥</div>
-                <div class="streak-number">\${data.currentStreak}</div>
-                <div class="streak-label">\${data.currentStreak === 1 ? 'day' : 'days'} in a row</div>
-
-                <div class="streak-calendar">
-                    \${renderCalendar(data.visitDates)}
-                </div>
-
-                <div class="streak-message">\${message}</div>
-
-                <div class="streak-stats">
-                    <div class="stat-item">
-                        <div class="stat-value">\${data.longestStreak}</div>
-                        <div class="stat-label">Longest Streak</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">\${data.totalVisits}</div>
-                        <div class="stat-label">Total Visits</div>
-                    </div>
-                </div>
-            </div>
-        \`;
-
-        container.innerHTML = html;
-    }
-
-    function renderCalendar(visitDates) {
-        const days = [];
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date(today);
-            date.setDate(date.getDate() - i);
-            const dateStr = date.toISOString().split('T')[0];
-            const isActive = visitDates.includes(dateStr);
-            const dayLabel = ['S', 'M', 'T', 'W', 'T', 'F', 'S'][date.getDay()];
-            days.push(\`<div class="calendar-day \${isActive ? 'active' : ''}">\${dayLabel}</div>\`);
-        }
-
-        return days.join('');
-    }
-
-    function getEncouragingMessage(streak, isNewUser) {
-        if (isNewUser) return "Welcome! Your journey begins! 🎉";
-
-        const messages = {
-            1: "You're back! Let's build a streak! 💪",
-            3: "3 days! Building a habit! 🔥",
-            7: "One week! Unstoppable! 🚀",
-            14: "Two weeks! Inspiring! ⭐",
-            30: "30 days! Legend! 👑",
-            60: "60 days! Incredible! 🏆",
-            100: "100 DAYS! Amazing! 🎊",
-            365: "ONE YEAR! Champion! 🌈"
-        };
-
-        if (messages[streak]) return messages[streak];
-
-        if (streak < 7) return \`\${streak} days! On fire! 🔥\`;
-        if (streak < 30) return \`\${streak} days! Consistency! ⚡\`;
-        return \`\${streak} days! Crushing it! 💎\`;
-    }
-
-    // Auto-load on page load
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', loadStreak);
-    } else {
-        loadStreak();
-    }
-})();
-</script>`;
+            return code;
         }
 
         function copyCode() {
-            const code = document.getElementById('generatedCode').textContent;
+            const code = document.getElementById('generated-code').textContent;
             navigator.clipboard.writeText(code).then(() => {
                 const btn = event.target;
-                btn.textContent = 'Copied!';
+                btn.textContent = '✅ Copied!';
                 btn.classList.add('copied');
                 setTimeout(() => {
-                    btn.textContent = 'Copy';
+                    btn.textContent = '📋 Copy';
                     btn.classList.remove('copied');
                 }, 2000);
             });
+        }
+
+        async function loadPreview(schoolId, apiUrl) {
+            const container = document.getElementById('preview-container');
+
+            try {
+                const response = await fetch(apiUrl + '/visit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ schoolId })
+                });
+
+                const data = await response.json();
+
+                const message = data.isNewUser ? "Welcome! Your journey begins! 🎉" : data.currentStreak + " days! On fire! 🔥";
+
+                container.innerHTML = `
+                    <div style="
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        border-radius: 16px;
+                        padding: 32px;
+                        color: white;
+                        text-align: center;
+                        max-width: 500px;
+                        margin: 0 auto;
+                    ">
+                        <div style="font-size: 48px; margin-bottom: 12px;">🔥</div>
+                        <div style="font-size: 64px; font-weight: 800; margin-bottom: 8px;">${data.currentStreak}</div>
+                        <div style="font-size: 18px; opacity: 0.9; margin-bottom: 16px;">${data.currentStreak === 1 ? 'day' : 'days'} in a row</div>
+                        <div style="background: rgba(255,255,255,0.2); padding: 12px; border-radius: 8px; margin-top: 16px;">${message}</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px;">
+                            <div style="background: rgba(255,255,255,0.15); padding: 12px; border-radius: 8px;">
+                                <div style="font-size: 24px; font-weight: 700;">${data.longestStreak}</div>
+                                <div style="font-size: 12px; opacity: 0.8;">Longest</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.15); padding: 12px; border-radius: 8px;">
+                                <div style="font-size: 24px; font-weight: 700;">${data.totalVisits}</div>
+                                <div style="font-size: 12px; opacity: 0.8;">Total</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                container.innerHTML = '<div style="color: #c33;">Failed to load preview. Make sure server is running.</div>';
+            }
         }
     </script>
 </body>
