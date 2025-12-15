@@ -260,11 +260,37 @@
                 '</style>\n\n' +
                 '<script>\n' +
                 '(function() {\n' +
-                '    const SCHOOL_ID = "' + schoolId + '";\n' +
                 '    const API_URL = "' + apiUrl + '";\n' +
                 '    let widgetLoaded = false;\n' +
                 '    let lastPath = window.location.pathname;\n\n' +
+                '    // Extract user ID from Teachable cookies\n' +
+                '    function getUserId() {\n' +
+                '        // Try to extract from _hp2_id cookie (contains identity field with Teachable student ID)\n' +
+                '        const hp2Match = document.cookie.match(/_hp2_id\\.[^=]+=([^;]+)/);\n' +
+                '        if (hp2Match) {\n' +
+                '            try {\n' +
+                '                const decoded = decodeURIComponent(hp2Match[1]);\n' +
+                '                const data = JSON.parse(decoded);\n' +
+                '                if (data.identity) {\n' +
+                '                    return data.identity;\n' +
+                '                }\n' +
+                '            } catch (e) {}\n' +
+                '        }\n' +
+                '        // Fallback: try ajs_user_id\n' +
+                '        const ajsMatch = document.cookie.match(/ajs_user_id=([^;]+)/);\n' +
+                '        if (ajsMatch) {\n' +
+                '            return decodeURIComponent(ajsMatch[1]).replace(/["\\']/g, "");\n' +
+                '        }\n' +
+                '        // Fallback: generate a unique ID and store it\n' +
+                '        let userId = localStorage.getItem("teachable_streak_user_id");\n' +
+                '        if (!userId) {\n' +
+                '            userId = "guest_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);\n' +
+                '            localStorage.setItem("teachable_streak_user_id", userId);\n' +
+                '        }\n' +
+                '        return userId;\n' +
+                '    }\n\n' +
                 '    async function loadStreak() {\n' +
+                '        const userId = getUserId();\n' +
                 '        // Check if we\'re on dashboard page\n' +
                 '        const isDashboard = document.querySelector(".DashboardPage") || window.location.pathname.includes("/l/dashboard");\n' +
                 '        \n' +
@@ -304,7 +330,7 @@
                 '            const response = await fetch(API_URL + "/visit", {\n' +
                 '                method: "POST",\n' +
                 '                headers: { "Content-Type": "application/json" },\n' +
-                '                body: JSON.stringify({ schoolId: SCHOOL_ID })\n' +
+                '                body: JSON.stringify({ schoolId: userId })\n' +
                 '            });\n\n' +
                 '            if (!response.ok) throw new Error("Failed to load");\n\n' +
                 '            const data = await response.json();\n' +
