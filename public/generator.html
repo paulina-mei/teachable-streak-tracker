@@ -262,20 +262,29 @@
                 '(function() {\n' +
                 '    const SCHOOL_ID = "' + schoolId + '";\n' +
                 '    const API_URL = "' + apiUrl + '";\n' +
-                '    let widgetLoaded = false;\n\n' +
+                '    let widgetLoaded = false;\n' +
+                '    let lastPath = window.location.pathname;\n\n' +
                 '    async function loadStreak() {\n' +
                 '        // Check if we\'re on dashboard page\n' +
                 '        const isDashboard = document.querySelector(".DashboardPage") || window.location.pathname.includes("/l/dashboard");\n' +
+                '        \n' +
                 '        if (!isDashboard) {\n' +
+                '            // If we navigated away from dashboard, reset the widget\n' +
+                '            const existingWidget = document.getElementById("teachable-streak-widget");\n' +
+                '            if (existingWidget) {\n' +
+                '                existingWidget.remove();\n' +
+                '            }\n' +
+                '            widgetLoaded = false;\n' +
                 '            return;\n' +
                 '        }\n\n' +
                 '        // Check if widget already loaded\n' +
-                '        if (widgetLoaded) {\n' +
+                '        if (widgetLoaded && document.getElementById("teachable-streak-widget")) {\n' +
                 '            return;\n' +
                 '        }\n\n' +
                 '        // Look for greeting element\n' +
                 '        const greeting = document.querySelector(".DashboardGreeting");\n' +
                 '        if (!greeting) {\n' +
+                '            widgetLoaded = false;\n' +
                 '            return; // Not ready yet\n' +
                 '        }\n\n' +
                 '        // Create widget container\n' +
@@ -333,14 +342,8 @@
                 '        \'</div>\';\n\n' +
                 '        document.getElementById("teachable-streak-widget").innerHTML = html;\n' +
                 '    }\n\n' +
-                '    // Check every 500ms for dashboard greeting to appear\n' +
-                '    const checkInterval = setInterval(function() {\n' +
-                '        if (widgetLoaded) {\n' +
-                '            clearInterval(checkInterval);\n' +
-                '            return;\n' +
-                '        }\n' +
-                '        loadStreak();\n' +
-                '    }, 500);\n\n' +
+                '    // Check every 500ms - continuously run, never clear interval\n' +
+                '    setInterval(loadStreak, 500);\n\n' +
                 '    // Also try immediately\n' +
                 '    loadStreak();\n' +
                 '})();\n' +
