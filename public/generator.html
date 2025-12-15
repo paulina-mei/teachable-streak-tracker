@@ -219,8 +219,7 @@
 
         function createEmbedCode(schoolId, apiUrl) {
             // Return the embed code as a string (no template literals inside)
-            const code = '<!-- Teachable Streak Widget -->\n' +
-                '<div id="teachable-streak-widget"></div>\n\n' +
+            const code = '<!-- Teachable Streak Widget - Will appear after .DashboardGreeting -->\n' +
                 '<style>\n' +
                 '    #teachable-streak-widget {\n' +
                 '        max-width: 500px;\n' +
@@ -257,8 +256,19 @@
                 '    const SCHOOL_ID = "' + schoolId + '";\n' +
                 '    const API_URL = "' + apiUrl + '";\n\n' +
                 '    async function loadStreak() {\n' +
-                '        const container = document.getElementById("teachable-streak-widget");\n' +
-                '        if (!container) return;\n\n' +
+                '        let container = document.getElementById("teachable-streak-widget");\n' +
+                '        \n' +
+                '        // If container doesn\'t exist, create it and place after DashboardGreeting\n' +
+                '        if (!container) {\n' +
+                '            const greeting = document.querySelector(".DashboardGreeting");\n' +
+                '            if (greeting) {\n' +
+                '                container = document.createElement("div");\n' +
+                '                container.id = "teachable-streak-widget";\n' +
+                '                greeting.parentNode.insertBefore(container, greeting.nextSibling);\n' +
+                '            } else {\n' +
+                '                return; // Exit if no greeting element found\n' +
+                '            }\n' +
+                '        }\n\n' +
                 '        try {\n' +
                 '            container.innerHTML = "<div style=\'padding: 40px; text-align: center;\'>Loading streak...</div>";\n\n' +
                 '            const response = await fetch(API_URL + "/visit", {\n' +
