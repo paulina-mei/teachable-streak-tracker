@@ -146,15 +146,9 @@
         </div>
 
         <div class="card">
-            <div class="form-group">
-                <label for="schoolId">Your School ID</label>
-                <input
-                    type="text"
-                    id="schoolId"
-                    placeholder="e.g., 1371193"
-                    value="1371193"
-                >
-                <small>This is your unique Teachable student ID (usually a number)</small>
+            <div style="background: #e0f2fe; padding: 16px; border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #0284c7;">
+                <strong style="color: #0c4a6e;">ℹ️ Auto-Detection Enabled</strong>
+                <p style="color: #075985; margin-top: 8px; font-size: 14px;">Student IDs are now automatically extracted from Teachable cookies. Each student will see their own personal streak!</p>
             </div>
 
             <div class="form-group">
@@ -193,31 +187,25 @@
 
     <script>
         function generateCode() {
-            const schoolId = document.getElementById('schoolId').value.trim();
             const apiUrl = document.getElementById('apiUrl').value.trim();
-
-            if (!schoolId) {
-                alert('Please enter your School ID');
-                return;
-            }
 
             if (!apiUrl) {
                 alert('Please enter API URL');
                 return;
             }
 
-            // Generate the code
-            const code = createEmbedCode(schoolId, apiUrl);
+            // Generate the code (schoolId no longer needed - auto-extracted from cookies)
+            const code = createEmbedCode(apiUrl);
 
             // Display it
             document.getElementById('generated-code').textContent = code;
             document.getElementById('output').classList.add('visible');
 
-            // Show preview
-            loadPreview(schoolId, apiUrl);
+            // Show preview (using dummy ID for preview)
+            loadPreview('preview', apiUrl);
         }
 
-        function createEmbedCode(schoolId, apiUrl) {
+        function createEmbedCode(apiUrl) {
             // Return the embed code as a string (no template literals inside)
             const code = '<!-- Teachable Streak Widget - Will appear after .DashboardGreeting -->\n' +
                 '<style>\n' +
