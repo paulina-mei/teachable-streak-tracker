@@ -266,32 +266,31 @@
                 '    }\n\n' +
                 '    const SCHOOL_ID = "' + schoolId + '";\n' +
                 '    const API_URL = "' + apiUrl + '";\n' +
-                '    let loadAttempts = 0;\n' +
-                '    const MAX_ATTEMPTS = 20; // Try for up to 4 seconds\n\n' +
+                '    let widgetLoaded = false;\n\n' +
                 '    async function loadStreak() {\n' +
+                '        // Check if we\'re on dashboard\n' +
+                '        if (!document.querySelector(".DashboardPage") && !window.location.pathname.includes("/l/dashboard")) {\n' +
+                '            return;\n' +
+                '        }\n\n' +
+                '        // Check if widget already exists\n' +
+                '        if (widgetLoaded && document.getElementById("teachable-streak-widget")) {\n' +
+                '            return;\n' +
+                '        }\n\n' +
+                '        const greeting = document.querySelector(".DashboardGreeting");\n' +
+                '        if (!greeting) {\n' +
+                '            return; // Wait for observer to detect it\n' +
+                '        }\n\n' +
                 '        let container = document.getElementById("teachable-streak-widget");\n' +
-                '        \n' +
-                '        // If container doesn\'t exist, create it and place after DashboardGreeting\n' +
                 '        if (!container) {\n' +
-                '            const greeting = document.querySelector(".DashboardGreeting");\n' +
-                '            if (greeting) {\n' +
-                '                container = document.createElement("div");\n' +
-                '                container.id = "teachable-streak-widget";\n' +
-                '                // Insert AFTER the greeting (nextSibling inserts after)\n' +
-                '                if (greeting.nextSibling) {\n' +
-                '                    greeting.parentNode.insertBefore(container, greeting.nextSibling);\n' +
-                '                } else {\n' +
-                '                    greeting.parentNode.appendChild(container);\n' +
-                '                }\n' +
+                '            container = document.createElement("div");\n' +
+                '            container.id = "teachable-streak-widget";\n' +
+                '            if (greeting.nextSibling) {\n' +
+                '                greeting.parentNode.insertBefore(container, greeting.nextSibling);\n' +
                 '            } else {\n' +
-                '                // Greeting not found yet, retry after delay\n' +
-                '                loadAttempts++;\n' +
-                '                if (loadAttempts < MAX_ATTEMPTS) {\n' +
-                '                    setTimeout(loadStreak, 200);\n' +
-                '                }\n' +
-                '                return;\n' +
+                '                greeting.parentNode.appendChild(container);\n' +
                 '            }\n' +
                 '        }\n\n' +
+                '        widgetLoaded = true;\n\n' +
                 '        try {\n' +
                 '            container.innerHTML = "<div style=\'padding: 40px; text-align: center;\'>Loading streak...</div>";\n\n' +
                 '            const response = await fetch(API_URL + "/visit", {\n' +
@@ -335,13 +334,22 @@
                 '        \'</div>\';\n\n' +
                 '        document.getElementById("teachable-streak-widget").innerHTML = html;\n' +
                 '    }\n\n' +
-                '    // Wait a bit for Teachable to load its content, then start trying\n' +
+                '    // Use MutationObserver to watch for .DashboardGreeting appearing\n' +
+                '    const observer = new MutationObserver(function() {\n' +
+                '        if (document.querySelector(".DashboardGreeting") && !widgetLoaded) {\n' +
+                '            loadStreak();\n' +
+                '        }\n' +
+                '    });\n\n' +
+                '    // Start observing the entire document for changes\n' +
+                '    observer.observe(document.body, {\n' +
+                '        childList: true,\n' +
+                '        subtree: true\n' +
+                '    });\n\n' +
+                '    // Also try immediately in case greeting is already there\n' +
                 '    if (document.readyState === "loading") {\n' +
-                '        document.addEventListener("DOMContentLoaded", function() {\n' +
-                '            setTimeout(loadStreak, 300);\n' +
-                '        });\n' +
+                '        document.addEventListener("DOMContentLoaded", loadStreak);\n' +
                 '    } else {\n' +
-                '        setTimeout(loadStreak, 300);\n' +
+                '        loadStreak();\n' +
                 '    }\n' +
                 '})();\n' +
                 '<\/script>';
