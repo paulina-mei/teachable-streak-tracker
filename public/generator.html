@@ -267,7 +267,7 @@
                 '        // Fallback: try ajs_user_id\n' +
                 '        const ajsMatch = document.cookie.match(/ajs_user_id=([^;]+)/);\n' +
                 '        if (ajsMatch) {\n' +
-                '            return decodeURIComponent(ajsMatch[1]).replace(/["\\']/g, "");\n' +
+                '            return decodeURIComponent(ajsMatch[1]).replace(/["' + "'" + ']/g, "");\n' +
                 '        }\n' +
                 '        // Fallback: generate a unique ID and store it\n' +
                 '        let userId = localStorage.getItem("teachable_streak_user_id");\n' +
