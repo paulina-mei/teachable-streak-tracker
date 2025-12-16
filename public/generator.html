@@ -253,16 +253,33 @@
                 '    let lastPath = window.location.pathname;\n\n' +
                 '    // Extract INDIVIDUAL student ID from Teachable cookies\n' +
                 '    function getUserId() {\n' +
-                '        // FIRST: Try to extract identity from _hp2_id cookie (unique student ID)\n' +
-                '        const hp2Match = document.cookie.match(/_hp2_id\\.[^=]+=([^;]+)/);\n' +
-                '        if (hp2Match) {\n' +
-                '            try {\n' +
-                '                const decoded = decodeURIComponent(hp2Match[1]);\n' +
-                '                const data = JSON.parse(decoded);\n' +
-                '                if (data.identity) {\n' +
-                '                    return data.identity;\n' +
-                '                }\n' +
-                '            } catch (e) {}\n' +
+                '        // FIRST: Try to extract identity from _hp2_id cookies (may be multiple)\n' +
+                '        // Prefer numeric IDs over email addresses\n' +
+                '        const hp2Matches = document.cookie.match(/_hp2_id\\.[^=]+=([^;]+)/g);\n' +
+                '        if (hp2Matches) {\n' +
+                '            let numericId = null;\n' +
+                '            let fallbackId = null;\n' +
+                '            \n' +
+                '            for (const match of hp2Matches) {\n' +
+                '                try {\n' +
+                '                    const valueMatch = match.match(/=(.+)$/);\n' +
+                '                    if (!valueMatch) continue;\n' +
+                '                    const decoded = decodeURIComponent(valueMatch[1]);\n' +
+                '                    const data = JSON.parse(decoded);\n' +
+                '                    if (data.identity) {\n' +
+                '                        // Prefer numeric IDs\n' +
+                '                        if (/^\\d+$/.test(data.identity)) {\n' +
+                '                            numericId = data.identity;\n' +
+                '                            break; // Found numeric ID, use it\n' +
+                '                        } else if (!fallbackId) {\n' +
+                '                            fallbackId = data.identity;\n' +
+                '                        }\n' +
+                '                    }\n' +
+                '                } catch (e) {}\n' +
+                '            }\n' +
+                '            \n' +
+                '            if (numericId) return numericId;\n' +
+                '            if (fallbackId) return fallbackId;\n' +
                 '        }\n' +
                 '        // Fallback: try ajs_user_id\n' +
                 '        const ajsMatch = document.cookie.match(/ajs_user_id=([^;]+)/);\n' +
