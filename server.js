@@ -144,6 +144,63 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// ADMIN: Manually add a backdated visit (for demo purposes)
+app.post('/api/admin/backdate-visit', async (req, res) => {
+    const { schoolId, date } = req.body;
+
+    if (!schoolId || !date) {
+        return res.status(400).json({ error: 'schoolId and date required (format: YYYY-MM-DD)' });
+    }
+
+    try {
+        const allData = await loadAllStreaks();
+        const data = allData[schoolId] || {
+            schoolId,
+            currentStreak: 0,
+            longestStreak: 0,
+            lastVisitDate: null,
+            visitDates: [],
+            totalVisits: 0,
+            createdAt: new Date().toISOString()
+        };
+
+        // Add the date if not already present
+        if (!data.visitDates.includes(date)) {
+            data.visitDates.push(date);
+            data.visitDates.sort();
+            data.totalVisits = data.visitDates.length;
+
+            // Recalculate streak
+            const dates = data.visitDates.map(d => new Date(d)).sort((a, b) => a - b);
+            let currentStreak = 1;
+            let longestStreak = 1;
+
+            for (let i = dates.length - 1; i > 0; i--) {
+                const diff = getDateDifference(dates[i], dates[i - 1]);
+                if (diff === 1) {
+                    currentStreak++;
+                    longestStreak = Math.max(longestStreak, currentStreak);
+                } else if (diff > 1) {
+                    break;
+                }
+            }
+
+            data.currentStreak = currentStreak;
+            data.longestStreak = Math.max(data.longestStreak, longestStreak);
+            data.lastVisitDate = data.visitDates[data.visitDates.length - 1];
+            data.updatedAt = new Date().toISOString();
+
+            allData[schoolId] = data;
+            await saveAllStreaks(allData);
+        }
+
+        res.json(data);
+    } catch (error) {
+        console.error('Error backdating visit:', error);
+        res.status(500).json({ error: 'Failed to backdate visit' });
+    }
+});
+
 // Get student streak (without incrementing)
 app.get('/api/streak/:schoolId', async (req, res) => {
     try {
