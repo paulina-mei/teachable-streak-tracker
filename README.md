@@ -71,15 +71,40 @@ For local testing without Teachable cookies:
 
 ### Simulating Different Scenarios
 
+**Test streak increment (recommended method):**
+Use the admin backdate endpoint to add historical visits:
+```bash
+# Add a visit for yesterday
+curl -X POST https://your-app-url.onrender.com/api/admin/backdate-visit \
+  -H "Content-Type: application/json" \
+  -d '{"schoolId":"76326411","date":"2025-12-15"}'
+```
+
+**Test multi-day streaks:**
+Add multiple backdated visits to simulate consecutive days:
+```bash
+# Day 1
+curl -X POST https://your-app-url.onrender.com/api/admin/backdate-visit \
+  -H "Content-Type: application/json" \
+  -d '{"schoolId":"76326411","date":"2025-12-14"}'
+
+# Day 2
+curl -X POST https://your-app-url.onrender.com/api/admin/backdate-visit \
+  -H "Content-Type: application/json" \
+  -d '{"schoolId":"76326411","date":"2025-12-15"}'
+```
+
 **Reset a student's streak:**
 - Delete their entry from `data/streaks.json`
+- Or use the admin endpoint to rebuild their streak from specific dates
 
-**Test streak increment:**
+**Manual testing (alternative method):**
 - Edit `data/streaks.json` and change `lastVisitDate` to yesterday's date
 - Reload the dashboard to see streak increment
 
 **Test different students:**
 - Each student with a different Teachable ID will have their own streak tracked
+- Numeric student IDs are automatically extracted from Teachable cookies
 
 ## API Endpoints
 
@@ -89,15 +114,17 @@ Record a student visit and update streak
 **Request Body:**
 ```json
 {
-  "schoolId": "76326411"
+  "schoolId": "76326411",
+  "schoolRef": "1371193"
 }
 ```
-*Note: `schoolId` is automatically extracted from Teachable cookies by the widget. This is the student's unique Teachable ID.*
+*Note: `schoolId` (the individual student's unique ID) and `schoolRef` (the school ID for reference) are automatically extracted from Teachable cookies by the widget.*
 
 **Response:**
 ```json
 {
   "schoolId": "76326411",
+  "schoolRef": "1371193",
   "currentStreak": 5,
   "longestStreak": 7,
   "lastVisitDate": "2025-12-15",
@@ -109,17 +136,110 @@ Record a student visit and update streak
 }
 ```
 
+### `POST /api/admin/backdate-visit`
+**Admin endpoint** - Manually add a backdated visit (for demo/testing purposes)
+
+⚠️ **Use with caution** - This endpoint bypasses normal visit logic and directly modifies streak data.
+
+**Request Body:**
+```json
+{
+  "schoolId": "76326411",
+  "date": "2025-12-15"
+}
+```
+
+**Response:**
+```json
+{
+  "schoolId": "76326411",
+  "schoolRef": "1371193",
+  "currentStreak": 2,
+  "longestStreak": 2,
+  "lastVisitDate": "2025-12-16",
+  "visitDates": ["2025-12-15", "2025-12-16"],
+  "totalVisits": 2,
+  "createdAt": "2025-12-15T15:04:26.586Z",
+  "updatedAt": "2025-12-16T13:45:45.427Z"
+}
+```
+
+**Example Usage:**
+```bash
+# Add a backdated visit for demo purposes
+curl -X POST https://your-app-url.onrender.com/api/admin/backdate-visit \
+  -H "Content-Type: application/json" \
+  -d '{"schoolId":"76326411","date":"2025-12-15"}'
+```
+
+**Use Cases:**
+- Restore streak data after Render deploys (free tier has ephemeral disk)
+- Prepare demo data with multi-day streaks
+- Test streak calculation logic with historical dates
+
+**Production Note:** For production use, consider adding authentication/authorization to this endpoint.
+
 ### `GET /api/streak/:schoolId`
 Get student streak without recording a visit
+
+**Example:**
+```bash
+curl https://your-app-url.onrender.com/api/streak/76326411
+```
 
 ### `GET /api/leaderboard`
 Get top 10 students by current streak (anonymized)
 
+**Example:**
+```bash
+curl https://your-app-url.onrender.com/api/leaderboard
+```
+
+**Response:**
+```json
+[
+  {
+    "schoolId": "763***",
+    "currentStreak": 15,
+    "longestStreak": 20
+  },
+  ...
+]
+```
+
 ### `GET /api/stats`
 Get overall statistics
 
+**Example:**
+```bash
+curl https://your-app-url.onrender.com/api/stats
+```
+
+**Response:**
+```json
+{
+  "totalStudents": 42,
+  "totalVisits": 326,
+  "averageStreak": "4.2",
+  "longestStreak": 30
+}
+```
+
 ### `GET /api/health`
 Health check endpoint
+
+**Example:**
+```bash
+curl https://your-app-url.onrender.com/api/health
+```
+
+**Response:**
+```json
+{
+  "status": "ok",
+  "timestamp": "2025-12-16T13:45:45.427Z"
+}
+```
 
 ## Deployment Options
 
@@ -149,6 +269,28 @@ git push -u origin main
 4. **Your app URL**: `https://teachable-streak-tracker.onrender.com`
 
 **Note**: Free tier spins down after inactivity. First load may be slow.
+
+### Important: Render Free Tier Limitations
+
+**Data Persistence:**
+- ⚠️ JSON file storage is **ephemeral** on Render free tier
+- Data is **lost** on redeploys, restarts, or server migrations
+- For production, migrate to a database (see "Upgrading Storage" section)
+
+**Service Behavior:**
+- Sleeps after **15 minutes** of inactivity
+- First request after sleep: **30-60 second delay**
+- No limits on visitors or API calls
+- 750 hours/month runtime (enough for 24/7)
+
+**For demos/testing:**
+- Wake up service 10 minutes before demo (visit any page)
+- Don't push code changes before important demos (preserves data)
+- Use the admin backdate endpoint to restore test data after deploys
+
+**For production:**
+- Upgrade to database (PostgreSQL/MongoDB) for data persistence
+- Consider paid tier ($7/month) to eliminate sleep/wake delays
 
 ### Option 2: Railway
 
@@ -309,19 +451,39 @@ Edit `getEncouragingMessage()` function in `public/index.html`
 
 ## How Student ID Detection Works
 
-The widget automatically extracts student IDs from Teachable cookies in this priority order:
+The widget automatically extracts individual student IDs from Teachable cookies. Since users may have multiple `_hp2_id` cookies (some with emails, some with numeric IDs), the extraction follows this priority:
 
-1. **`_hp2_id` cookie** - Extracts the `identity` field (primary Teachable student ID)
+### Priority Order:
+
+1. **`_hp2_id` cookies (multiple may exist)** - Scans all cookies, **prefers numeric IDs** over emails
 2. **`ajs_user_id` cookie** - Fallback Teachable user identifier
 3. **localStorage** - Last resort: generates a guest ID and stores it locally
 
-Example cookie extraction:
+### Example:
+
+You might have two cookies:
 ```javascript
-// From: _hp2_id.318805607={"identity":"76326411",...}
-// Extracted ID: "76326411"
+_hp2_id.3407116132 = {"identity":"user@example.com",...}  // Email - ignored
+_hp2_id.318805607  = {"identity":"76326411",...}          // Numeric - USED ✓
 ```
 
-This ensures each student sees only their own streak data.
+The widget will select `76326411` (numeric ID) and use it to track your personal streak.
+
+### School Reference:
+
+The school ID (from `_hp2_props.school_id`) is stored as **reference data only**:
+```javascript
+{
+  "76326411": {
+    "schoolId": "76326411",     // Primary key (user's unique ID)
+    "schoolRef": "1371193",     // Reference (which school they belong to)
+    "currentStreak": 5,
+    ...
+  }
+}
+```
+
+This ensures each student sees only their own streak data, while maintaining school association for future analytics.
 
 ## Data Structure
 
@@ -330,6 +492,7 @@ Student data stored in `data/streaks.json`:
 {
   "76326411": {
     "schoolId": "76326411",
+    "schoolRef": "1371193",
     "currentStreak": 5,
     "longestStreak": 7,
     "lastVisitDate": "2025-12-15",
@@ -340,6 +503,17 @@ Student data stored in `data/streaks.json`:
   }
 }
 ```
+
+**Fields:**
+- `schoolId` - Primary key (unique user ID from Teachable)
+- `schoolRef` - School ID reference (which school the student belongs to)
+- `currentStreak` - Current consecutive days
+- `longestStreak` - Best streak ever achieved
+- `lastVisitDate` - Last visit in YYYY-MM-DD format
+- `visitDates` - Array of all visit dates
+- `totalVisits` - Total number of visits
+- `createdAt` - First visit timestamp
+- `updatedAt` - Last update timestamp
 
 ## Security Considerations
 

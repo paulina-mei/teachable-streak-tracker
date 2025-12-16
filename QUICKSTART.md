@@ -121,26 +121,38 @@ curl https://teachable-streak-tracker.onrender.com/api/leaderboard
 
 # Get specific student's streak
 curl https://teachable-streak-tracker.onrender.com/api/streak/76326411
+
+# Restore data after deploy (admin endpoint)
+curl -X POST https://teachable-streak-tracker.onrender.com/api/admin/backdate-visit \
+  -H "Content-Type: application/json" \
+  -d '{"schoolId":"76326411","date":"2025-12-15"}'
 ```
+
+**Important:** Since Render's free tier has ephemeral disk storage, data is lost on every deploy. Use the admin backdate endpoint to quickly restore your demo data after deploying new code.
 
 ## API Testing
 
 Test endpoints with curl:
 
 ```bash
-# Record a visit
+# Record a visit (with school reference)
 curl -X POST http://localhost:3000/api/visit \
   -H "Content-Type: application/json" \
-  -d '{"schoolId": "student123"}'
+  -d '{"schoolId": "76326411", "schoolRef": "1371193"}'
 
 # Get streak
-curl http://localhost:3000/api/streak/student123
+curl http://localhost:3000/api/streak/76326411
 
 # Get leaderboard
 curl http://localhost:3000/api/leaderboard
 
 # Get stats
 curl http://localhost:3000/api/stats
+
+# Backdate a visit (admin endpoint for testing)
+curl -X POST http://localhost:3000/api/admin/backdate-visit \
+  -H "Content-Type: application/json" \
+  -d '{"schoolId":"76326411","date":"2025-12-15"}'
 ```
 
 ## Troubleshooting
