@@ -253,7 +253,18 @@
                 '    let lastPath = window.location.pathname;\n\n' +
                 '    // Extract user ID from Teachable cookies\n' +
                 '    function getUserId() {\n' +
-                '        // Try to extract from _hp2_id cookie (contains identity field with Teachable student ID)\n' +
+                '        // FIRST: Try to extract school_id from _hp2_props cookie (most reliable)\n' +
+                '        const hp2PropsMatch = document.cookie.match(/_hp2_props\\.[^=]+=([^;]+)/);\n' +
+                '        if (hp2PropsMatch) {\n' +
+                '            try {\n' +
+                '                const decoded = decodeURIComponent(hp2PropsMatch[1]);\n' +
+                '                const data = JSON.parse(decoded);\n' +
+                '                if (data.school_id) {\n' +
+                '                    return data.school_id;\n' +
+                '                }\n' +
+                '            } catch (e) {}\n' +
+                '        }\n' +
+                '        // Fallback: Try to extract identity from _hp2_id cookie\n' +
                 '        const hp2Match = document.cookie.match(/_hp2_id\\.[^=]+=([^;]+)/);\n' +
                 '        if (hp2Match) {\n' +
                 '            try {\n' +
