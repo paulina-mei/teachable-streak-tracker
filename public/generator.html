@@ -294,8 +294,21 @@
                 '        }\n' +
                 '        return userId;\n' +
                 '    }\n\n' +
+                '    function getSchoolId() {\n' +
+                '        // Extract school_id from _hp2_props for reference\n' +
+                '        const hp2PropsMatch = document.cookie.match(/_hp2_props\\.[^=]+=([^;]+)/);\n' +
+                '        if (hp2PropsMatch) {\n' +
+                '            try {\n' +
+                '                const decoded = decodeURIComponent(hp2PropsMatch[1]);\n' +
+                '                const data = JSON.parse(decoded);\n' +
+                '                return data.school_id || null;\n' +
+                '            } catch (e) {}\n' +
+                '        }\n' +
+                '        return null;\n' +
+                '    }\n\n' +
                 '    async function loadStreak() {\n' +
                 '        const userId = getUserId();\n' +
+                '        const schoolId = getSchoolId();\n' +
                 '        // Check if we\'re on dashboard page\n' +
                 '        const isDashboard = document.querySelector(".DashboardPage") || window.location.pathname.includes("/l/dashboard");\n' +
                 '        \n' +
@@ -335,7 +348,7 @@
                 '            const response = await fetch(API_URL + "/visit", {\n' +
                 '                method: "POST",\n' +
                 '                headers: { "Content-Type": "application/json" },\n' +
-                '                body: JSON.stringify({ schoolId: userId })\n' +
+                '                body: JSON.stringify({ schoolId: userId, schoolRef: schoolId })\n' +
                 '            });\n\n' +
                 '            if (!response.ok) throw new Error("Failed to load");\n\n' +
                 '            const data = await response.json();\n' +

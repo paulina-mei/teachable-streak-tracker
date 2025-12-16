@@ -74,11 +74,16 @@ async function getStudentStreak(schoolId) {
 }
 
 // Calculate and update streak
-async function calculateStreak(schoolId) {
+async function calculateStreak(schoolId, schoolRef = null) {
     const allData = await loadAllStreaks();
     const data = await getStudentStreak(schoolId);
     const today = getToday();
     const todayStr = formatDate(today);
+
+    // Store school reference if provided
+    if (schoolRef && !data.schoolRef) {
+        data.schoolRef = schoolRef;
+    }
 
     // Check if already visited today
     if (data.lastVisitDate === todayStr) {
@@ -221,13 +226,13 @@ app.get('/api/streak/:schoolId', async (req, res) => {
 // Record a visit (increments streak)
 app.post('/api/visit', async (req, res) => {
     try {
-        const { schoolId } = req.body;
+        const { schoolId, schoolRef } = req.body;
 
         if (!schoolId || schoolId.trim() === '') {
             return res.status(400).json({ error: 'School ID is required' });
         }
 
-        const data = await calculateStreak(schoolId);
+        const data = await calculateStreak(schoolId, schoolRef);
         res.json(data);
     } catch (error) {
         console.error('Error recording visit:', error);
