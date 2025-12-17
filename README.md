@@ -532,7 +532,7 @@ npm install mongoose
 
 4. **Add environment variable**:
 ```bash
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/streaks
+MONGODB_URI=mongodb+srv://<YOUR_USERNAME>:<YOUR_PASSWORD>@<YOUR_CLUSTER>.mongodb.net/streaks
 ```
 
 **Migration effort**: ~30 minutes of code changes
@@ -561,7 +561,7 @@ npm install pg
 
 4. **Add environment variable**:
 ```bash
-DATABASE_URL=postgresql://user:password@host:5432/database
+DATABASE_URL=postgresql://<YOUR_USER>:<YOUR_PASSWORD>@<YOUR_HOST>:5432/<YOUR_DATABASE>
 ```
 
 **Migration effort**: ~1 hour (requires more code restructuring)
